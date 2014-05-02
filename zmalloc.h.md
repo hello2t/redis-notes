@@ -3,15 +3,18 @@
     #ifndef __ZMALLOC_H
 
 ### 定义头文件
+
     #define __ZMALLOC_H
 
 ### 两次宏扩展以便对宏定义值进行字符串化
+
     /* Double expansion needed for stringification of macro values. */
     #define __xstr(s) __str(s)
     #define __str(s) #s
 
 ### 在使用TC_MALLOC或JEMALLOC或APPLE的情况下，使用相应的malloc替换zmalloc_size函数
 - 如果使用了TCMALLOC，则ZMALLOC_LIB定义为tcmalloc-a.b，a为TC_VERSION_MAJOR的值，b为TC_VERSION_MINOR的值；引入头文件google/tcmalloc.h；如果tcmalloc版本在1.6或以上则定义HAVE_MALLOC_SIZE为1，且用tc_malloc_size函数替换zmalloc_size函数，否则报错“需要更高版本”；
+
 
     #if defined(USE_TCMALLOC)
     #define ZMALLOC_LIB ("tcmalloc-" __xstr(TC_VERSION_MAJOR) "." __xstr(TC_VERSION_MINOR))
