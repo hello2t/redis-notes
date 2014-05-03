@@ -1,5 +1,5 @@
 ### 文件说明
-···c
+```c
 /* zmalloc - total amount of allocated memory aware version of malloc()
  *
  * Copyright (c) 2009-2010, Salvatore Sanfilippo <antirez at gmail dot com>
@@ -38,7 +38,7 @@
 #include <stdlib.h>
 ```
 
-### 访问原始的libc的free()
+### zlibc_free其实是访问原始的libc的free()
 
 ```c
 /* This function provide us access to the original libc free(). This is useful
@@ -49,11 +49,22 @@ void zlibc_free(void *ptr) {
     free(ptr);
 }
 ```
+
+### 引入头文件\<string.h\>,\<pthread.h\>,config.h,zmalloc.h
+
+```c
 #include <string.h>
 #include <pthread.h>
 #include "config.h"
 #include "zmalloc.h"
+```
 
+### PREFIX_SIZE的定义
+- 如果使用了TCMALLOC或者JEMALLOC或者APPLE，则定义PREFIX_SIZE为0
+- 其他情况下，如果是定义了 \_\_sun或者\_\_sparc或者 \_\_sparc\_\_，则前序使用long long型
+- 其他任何情况下，前序应为size_t型，长度应为sizeof(size_t)
+
+```c
 #ifdef HAVE_MALLOC_SIZE
 #define PREFIX_SIZE (0)
 #else
@@ -63,7 +74,13 @@ void zlibc_free(void *ptr) {
 #define PREFIX_SIZE (sizeof(size_t))
 #endif
 #endif
+```
 
+### 显式替换malloc/free等相关函数，四大函数malloc，calloc，realloc，free
+- 如果使用tcmalloc，则使用tcmalloc的相关函数替换malloc的相关函数
+- 如果使用jemalloc，则使用jemalloc的相关函数替换malloc的相关函数
+
+```c
 /* Explicitly override malloc/free etc when using tcmalloc. */
 #if defined(USE_TCMALLOC)
 #define malloc(size) tc_malloc(size)
@@ -76,7 +93,15 @@ void zlibc_free(void *ptr) {
 #define realloc(ptr,size) je_realloc(ptr,size)
 #define free(ptr) je_free(ptr)
 #endif
+```
 
+### update\_zmalloc\_stat\_add(\_\_n)和update\_zmalloc\_stat\_sub(__n)
+
+如果定义了HAVE\_ATOMIC，则使用\_\_sync\_add\_and\_fetch(&used\_memory, (\_\_n))和\_\_sync\_sub\_and\_fetch(&used\_memory, (\_\_n))
+
+如果没有定义HAVE\_ATOMIC，定义
+
+```c
 #ifdef HAVE_ATOMIC
 #define update_zmalloc_stat_add(__n) __sync_add_and_fetch(&used_memory, (__n))
 #define update_zmalloc_stat_sub(__n) __sync_sub_and_fetch(&used_memory, (__n))
@@ -86,15 +111,16 @@ void zlibc_free(void *ptr) {
     used_memory += (__n); \
     pthread_mutex_unlock(&used_memory_mutex); \
 } while(0)
-
 #define update_zmalloc_stat_sub(__n) do { \
     pthread_mutex_lock(&used_memory_mutex); \
     used_memory -= (__n); \
     pthread_mutex_unlock(&used_memory_mutex); \
 } while(0)
-
 #endif
+```
 
+### update_zmalloc_stat_alloc(__n)
+```c
 #define update_zmalloc_stat_alloc(__n) do { \
     size_t _n = (__n); \
     if (_n&(sizeof(long)-1)) _n += sizeof(long)-(_n&(sizeof(long)-1)); \
@@ -104,7 +130,10 @@ void zlibc_free(void *ptr) {
         used_memory += _n; \
     } \
 } while(0)
+```
 
+### update_zmalloc_stat_free(__n)
+```c
 #define update_zmalloc_stat_free(__n) do { \
     size_t _n = (__n); \
     if (_n&(sizeof(long)-1)) _n += sizeof(long)-(_n&(sizeof(long)-1)); \
@@ -114,7 +143,9 @@ void zlibc_free(void *ptr) {
         used_memory -= _n; \
     } \
 } while(0)
+```
 
+###
 static size_t used_memory = 0;
 static int zmalloc_thread_safe = 0;
 pthread_mutex_t used_memory_mutex = PTHREAD_MUTEX_INITIALIZER;
