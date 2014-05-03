@@ -41,8 +41,8 @@ zmalloc.c
 
 ```c
 #define mymacro() do {\
-stat1;\
-stat2;\
+stmt1;\
+stmt2;\
 } while(0)
 
 if(flag)
@@ -50,7 +50,7 @@ if(flag)
 ```
 #### 方案1：如果在宏定义里直接使用：
 ```c
-#define mymacro() stmt1; stamt2
+#define mymacro() stmt1; stmt2
 ```
 >注意，我们通常不在宏定义中加最后的“;”，而是在使用时加一个分号，这样更加符合编码习惯。
 
