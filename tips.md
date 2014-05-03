@@ -1,3 +1,5 @@
+{:toc}
+
 ## 二次宏扩展以便对宏定义值进行字符传化
 ### 来源
 
@@ -18,6 +20,7 @@ zmalloc.h
 zmalloc.c
 
 ### 代码
+
 ```c
 #define update_zmalloc_stat_alloc(__n) do { \
     size_t _n = (__n); \
@@ -32,6 +35,7 @@ zmalloc.c
 ### 说明
 为什么会在宏定义里使用do{...}while(0)这样的写法呢？和直接写...有什么区别呢？
 考虑代码
+
 ```c
 #define mymacro() do {\
 stat1;\
@@ -46,6 +50,7 @@ if(flag)
 #define mymacro() stmt1; stamt2
 ```
 >注意，我们通常不在宏定义中加最后的“;”，而是在使用时加一个分号，这样更加符合编码习惯。
+
 则
 ```c
 if(flag)
