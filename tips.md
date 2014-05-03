@@ -1,4 +1,3 @@
-{:toc}
 
 ## 二次宏扩展以便对宏定义值进行字符传化
 ### 来源
@@ -13,6 +12,10 @@ zmalloc.h
 ```
 
 ### 说明
+#### 参考阅读
+http://my.oschina.net/moooofly/blog/126187
+http://www.2cto.com/kf/201303/195299.html
+https://developer.apple.com/legacy/library/documentation/DeveloperTools/gcc-4.0.1/cpp/Stringification.html#Stringification
 
 ## do{}while(0)在宏定义中的使用
 ### 来源
