@@ -29,10 +29,14 @@ lparen指一个其后不是一个white-space的左括号，
 
  
 ### 参考阅读
-http://my.oschina.net/moooofly/blog/126187
-http://www.2cto.com/kf/201303/195299.html
-https://developer.apple.com/legacy/library/documentation/DeveloperTools/gcc-4.0.1/cpp/Stringification.html#Stringification
-ISO+IEC+9899-1999 6.10.3.2
+
+ISO+IEC+9899-1999 6.10.3.2  
+http://gcc.gnu.org/onlinedocs/cpp/Stringification.html  
+http://gcc.gnu.org/onlinedocs/cpp/Argument-Prescan.html  
+https://developer.apple.com/legacy/library/documentation/DeveloperTools/gcc-4.0.1/cpp/Stringification.html#Stringification  
+http://my.oschina.net/moooofly/blog/126187  
+http://www.2cto.com/kf/201303/195299.html  
+
 
 ## do{}while(0)在宏定义中的使用
 ### 来源
