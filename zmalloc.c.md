@@ -173,7 +173,7 @@ static void zmalloc_default_oom(size_t size) {
 static void (*zmalloc_oom_handler)(size_t) = zmalloc_default_oom;
 ```
 
-### zmalloc函数，重写malloc
+### zmalloc函数，封装malloc
 - 当需要申请size大小的内存时，实际分配size+PREFIX_SIZE大小的内存
 - 如果分配失败，则oom终止
 - 更新已使用内存。如果使用的tc或je或apple的内存池解决方案，则调用相应的函数(zmalloc.h中的宏替换)，返回内存的大小，以此更新已使用内存；否则，在ptr前边大小为size\_t的部分存放分配的内存大小size，并以size+PREFIX\_SIZE来更新已使用内存。
@@ -195,7 +195,7 @@ void *zmalloc(size_t size) {
 }
 ```
 
-### zcalloc函数，重写calloc
+### zcalloc函数，封装calloc
 逻辑同上
 ```c
 void *zcalloc(size_t size) {
@@ -213,7 +213,7 @@ void *zcalloc(size_t size) {
 }
 ```
 
-### zrealloc函数，重写realloc
+### zrealloc函数，封装realloc
 - 如果ptr==NULL，则直接调用zmalloc函数
 - 计算原来ptr的内存大小，
 - 调用realloc重新分配，并根据释放掉的原来的内存大小更新已使用内存，根据申请的新的内存大小更新已使用内存。
@@ -251,6 +251,8 @@ void *zrealloc(void *ptr, size_t size) {
 }
 ```
 
+### 定义zmalloc_size函数，返回本次分配的内存块的实际大小（向上long型对齐）
+```c
 /* Provide zmalloc_size() for systems where this function is not provided by
  * malloc itself, given that in that case we store an header with this
  * information as the first bytes of every allocation. */
@@ -264,7 +266,14 @@ size_t zmalloc_size(void *ptr) {
     return size+PREFIX_SIZE;
 }
 #endif
+```
 
+### 定义zfree，封装free
+- 如果指针为空，则直接返回
+- 更新已使用内存
+- 释放内存块
+
+```c
 void zfree(void *ptr) {
 #ifndef HAVE_MALLOC_SIZE
     void *realptr;
@@ -282,7 +291,10 @@ void zfree(void *ptr) {
     free(realptr);
 #endif
 }
+```
 
+### 字符串复制zstrdup
+```c
 char *zstrdup(const char *s) {
     size_t l = strlen(s)+1;
     char *p = zmalloc(l);
@@ -290,7 +302,11 @@ char *zstrdup(const char *s) {
     memcpy(p,s,l);
     return p;
 }
+```
 
+### 获取已使用内存大小
+根据是否线程安全，是否原子级操作，选择如何获取。
+```c
 size_t zmalloc_used_memory(void) {
     size_t um;
 
@@ -309,15 +325,24 @@ size_t zmalloc_used_memory(void) {
 
     return um;
 }
+```
 
+### 设置为线程安全级
+```c
 void zmalloc_enable_thread_safeness(void) {
     zmalloc_thread_safe = 1;
 }
+```
 
+### 设置outofmemory函数指针
+函数的参数oom\_handler是一个指针，该指针指向一个参数为size\_t，返回值类型为void的函数。
+```c
 void zmalloc_set_oom_handler(void (*oom_handler)(size_t)) {
     zmalloc_oom_handler = oom_handler;
 }
+```
 
+```c
 /* Get the RSS information in an OS-specific way.
  *
  * WARNING: the function zmalloc_get_rss() is not designed to be fast
@@ -395,7 +420,7 @@ size_t zmalloc_get_rss(void) {
     return zmalloc_used_memory();
 }
 #endif
-
+```
 /* Fragmentation = RSS / allocated-bytes */
 float zmalloc_get_fragmentation_ratio(void) {
     return (float)zmalloc_get_rss()/zmalloc_used_memory();
