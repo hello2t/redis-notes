@@ -24,12 +24,15 @@ lparen指一个其后不是一个white-space的左括号，
 实际上是一种值替换和三种函数替换。
 
 #### 参数替换
+1. 如果替换序列中的参数没有前导#或前导##或后续##，则参数会先进行宏展开，然后整个函数宏会被扩展
+2. 函数宏的替换列表中的#应该在后面跟着一个宏参数，作为替换列表中的下一个预处理节点。参数和#会一起被一个字符串字面量预处理节点替换。这个节点包含了对应参数的拼写值。
 
  
 ### 参考阅读
 http://my.oschina.net/moooofly/blog/126187
 http://www.2cto.com/kf/201303/195299.html
 https://developer.apple.com/legacy/library/documentation/DeveloperTools/gcc-4.0.1/cpp/Stringification.html#Stringification
+ISO+IEC+9899-1999 6.10.3.2
 
 ## do{}while(0)在宏定义中的使用
 ### 来源
