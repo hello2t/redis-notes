@@ -341,7 +341,17 @@ void zmalloc_set_oom_handler(void (*oom_handler)(size_t)) {
     zmalloc_oom_handler = oom_handler;
 }
 ```
+### 根据OS的特点，获取RSS信息zmalloc\_get\_rss
+- 如果HAVE\_PROC\_STAT被定义过
+    1. sysconf(\_SC\_PAGESIZE) 获取系统配置变量\_SC\_PAGESIZE:The size of a system page in bytes. \<unistd.h\>
+    2. getpid得到本进程的进程id，从而得到stat的路径/proc/pid/stat
+    3. 读文件，RSS位于文件中第24个域，因此向后找23个空格，之后就是RSS域。
+    4. 如果已经到文本末尾，直接返回0；否则将直到下个空格处的这段字符转换为数字。
+    5. rss乘以page大小，得到rss值。
+- 如果HAVE\_TASKINFO被定义过（OSX系统下），则使用task这一套方法获取rss信息
+- 如果不能通过操作系统的功能得到RSS，则直接返回已使用内存，这样的化，碎片率会始终为1
 
+不过这个函数的设计并没有过多的考虑效率，所以并不快。
 ```c
 /* Get the RSS information in an OS-specific way.
  *
@@ -360,7 +370,7 @@ void zmalloc_set_oom_handler(void (*oom_handler)(size_t)) {
 #include <fcntl.h>
 
 size_t zmalloc_get_rss(void) {
-    int page = sysconf(_SC_PAGESIZE);
+    int page = sysconf(_SC_PAGESIZE);//
     size_t rss;
     char buf[4096];
     char filename[256];
@@ -390,6 +400,7 @@ size_t zmalloc_get_rss(void) {
     rss *= page;
     return rss;
 }
+
 #elif defined(HAVE_TASKINFO)
 #include <unistd.h>
 #include <stdio.h>
@@ -410,6 +421,7 @@ size_t zmalloc_get_rss(void) {
 
     return t_info.resident_size;
 }
+
 #else
 size_t zmalloc_get_rss(void) {
     /* If we can't get the RSS in an OS-specific way for this system just
@@ -421,11 +433,18 @@ size_t zmalloc_get_rss(void) {
 }
 #endif
 ```
+
+### 获取碎片率
+碎片率 = RSS/已分配的内存
+```c
 /* Fragmentation = RSS / allocated-bytes */
 float zmalloc_get_fragmentation_ratio(void) {
     return (float)zmalloc_get_rss()/zmalloc_used_memory();
 }
+```
 
+### 定义zmalloc\_get\_private\_dirty
+```c 
 #if defined(HAVE_PROC_SMAPS)
 size_t zmalloc_get_private_dirty(void) {
     char line[1024];
@@ -450,3 +469,4 @@ size_t zmalloc_get_private_dirty(void) {
     return 0;
 }
 #endif
+```
