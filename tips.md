@@ -12,7 +12,21 @@ zmalloc.h
 ```
 
 ### 说明
-#### 参考阅读
+#### 宏定义
+宏定义有四种形式(C99 6.10)：
+> \# define identifier replacement-list new-line  
+> \# define identifier lparen identifier-listopt ) replacement-list new-line  
+> \# define identifier lparen ... ) replacement-list new-line  
+> \# define identifier lparen identifier-list, ...) replacement-list new-line  
+
+lparen指一个其后不是一个white-space的左括号，
+
+实际上是一种值替换和三种函数替换。
+
+#### 参数替换
+
+ 
+### 参考阅读
 http://my.oschina.net/moooofly/blog/126187
 http://www.2cto.com/kf/201303/195299.html
 https://developer.apple.com/legacy/library/documentation/DeveloperTools/gcc-4.0.1/cpp/Stringification.html#Stringification
@@ -95,5 +109,5 @@ else ...
 #### do{...}while(0)用于避免写goto。
 有的时候我们在走入某一分支后，需要跳过后面一大段代码，使用一个套住的循环，则可以利用break来跳过。
 
-#### 参考阅读
+### 参考阅读
 <a href = "http://gcc.gnu.org/onlinedocs/gcc-4.1.1/gcc/Statement-Exprs.html#Statement-Exprs">Statement-Exprs</a>
