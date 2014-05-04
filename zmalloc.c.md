@@ -95,11 +95,11 @@ void zlibc_free(void *ptr) {
 #endif
 ```
 
-### update\_zmalloc\_stat\_add(\_\_n)和update\_zmalloc\_stat\_sub(__n)
+### 多线程下的内存增加和减少：update\_zmalloc\_stat\_add(\_\_n)和update\_zmalloc\_stat\_sub(__n)
 
 如果定义了HAVE\_ATOMIC，则使用\_\_sync\_add\_and\_fetch(&used\_memory, (\_\_n))和\_\_sync\_sub\_and\_fetch(&used\_memory, (\_\_n))
 
-如果没有定义HAVE\_ATOMIC，定义
+如果没有定义HAVE\_ATOMIC，则分别定义这两个宏函数
 
 ```c
 #ifdef HAVE_ATOMIC
@@ -119,7 +119,12 @@ void zlibc_free(void *ptr) {
 #endif
 ```
 
-### update_zmalloc_stat_alloc(__n)
+### 分配了内存后，更新内存分配状态 update\_zmalloc\_stat\_alloc(\_\_n)
+
+首先对参数\_\_n按照sizeof(long)的倍数进行向上取整。例如：如果long是4byte长，则转换为2进制为(100)2。如果\_\_n的最后两位不是00的话(\_\_n不是sizeof(long)的倍数)，则自增(100)2，并减去余数。即向上取倍数。
+http://blog.nosqlfan.com/html/2810.html
+
+根据对线程安全性的要求（是否有多个线程存在），选择使用线程安全的更新方式还是普通的更新方式。
 ```c
 #define update_zmalloc_stat_alloc(__n) do { \
     size_t _n = (__n); \
@@ -132,7 +137,8 @@ void zlibc_free(void *ptr) {
 } while(0)
 ```
 
-### update_zmalloc_stat_free(__n)
+### 释放了内存后，更新内存分配状态update\_zmalloc\_stat\_free(\_\_n)
+原理同上
 ```c
 #define update_zmalloc_stat_free(__n) do { \
     size_t _n = (__n); \
@@ -145,11 +151,18 @@ void zlibc_free(void *ptr) {
 } while(0)
 ```
 
-###
+### 定义全局变量 
+- 已使用内存used\_memory
+- 线程安全要求zmalloc\_thread\_safe
+- 互斥变量used_memory_mutex，置为常量PTHREAD_MUTEX_INITIALIZER
+
+```c
 static size_t used_memory = 0;
 static int zmalloc_thread_safe = 0;
 pthread_mutex_t used_memory_mutex = PTHREAD_MUTEX_INITIALIZER;
-
+```
+### 静态函数OutofMemory终止
+```c
 static void zmalloc_default_oom(size_t size) {
     fprintf(stderr, "zmalloc: Out of memory trying to allocate %zu bytes\n",
         size);
@@ -158,7 +171,15 @@ static void zmalloc_default_oom(size_t size) {
 }
 
 static void (*zmalloc_oom_handler)(size_t) = zmalloc_default_oom;
+```
 
+### zmalloc函数，重写malloc
+- 当需要申请size大小的内存时，实际分配size+PREFIX_SIZE大小的内存
+- 如果分配失败，则oom终止
+- 更新已使用内存。如果使用的tc或je或apple的内存池解决方案，则调用相应的函数(zmalloc.h中的宏替换)，返回内存的大小，以此更新已使用内存；否则，在ptr前边大小为size\_t的部分存放分配的内存大小size，并以size+PREFIX\_SIZE来更新已使用内存。
+- 返回应用程序指针。如果使用了tc或je或apple的内存池解决方案，则直接返回指针；否则返回偏移PREFIX_SIZE个byte的地址，注意那个(char*)的用法。非常小心。
+
+```c
 void *zmalloc(size_t size) {
     void *ptr = malloc(size+PREFIX_SIZE);
 
@@ -172,7 +193,11 @@ void *zmalloc(size_t size) {
     return (char*)ptr+PREFIX_SIZE;
 #endif
 }
+```
 
+### zcalloc函数，重写calloc
+逻辑同上
+```c
 void *zcalloc(size_t size) {
     void *ptr = calloc(1, size+PREFIX_SIZE);
 
@@ -186,7 +211,16 @@ void *zcalloc(size_t size) {
     return (char*)ptr+PREFIX_SIZE;
 #endif
 }
+```
 
+### zrealloc函数，重写realloc
+- 如果ptr==NULL，则直接调用zmalloc函数
+- 计算原来ptr的内存大小，
+- 调用realloc重新分配，并根据释放掉的原来的内存大小更新已使用内存，根据申请的新的内存大小更新已使用内存。
+- 返回应用数据指针。
+这里仍然需要注意的是使用了对PREFIX_SIZE的处理
+
+```c
 void *zrealloc(void *ptr, size_t size) {
 #ifndef HAVE_MALLOC_SIZE
     void *realptr;
@@ -215,6 +249,7 @@ void *zrealloc(void *ptr, size_t size) {
     return (char*)newptr+PREFIX_SIZE;
 #endif
 }
+```
 
 /* Provide zmalloc_size() for systems where this function is not provided by
  * malloc itself, given that in that case we store an header with this
