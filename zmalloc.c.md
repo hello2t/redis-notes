@@ -151,7 +151,7 @@ http://blog.nosqlfan.com/html/2810.html
 } while(0)
 ```
 
-### 定义全局变量 
+### 定义全局变量
 - 已使用内存used\_memory
 - 线程安全要求zmalloc\_thread\_safe
 - 互斥变量used_memory_mutex，置为常量PTHREAD_MUTEX_INITIALIZER
@@ -294,6 +294,7 @@ void zfree(void *ptr) {
 ```
 
 ### 字符串复制zstrdup
+-因为strlen是计算字符串有多少字符的,不包括结束符，所以加一
 ```c
 char *zstrdup(const char *s) {
     size_t l = strlen(s)+1;
@@ -444,7 +445,7 @@ float zmalloc_get_fragmentation_ratio(void) {
 ```
 
 ### 定义zmalloc\_get\_private\_dirty
-```c 
+```c
 #if defined(HAVE_PROC_SMAPS)
 size_t zmalloc_get_private_dirty(void) {
     char line[1024];
