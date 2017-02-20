@@ -102,7 +102,8 @@ sds sdsnewlen(const void *init, size_t initlen) {
     return (char*)sh->buf;
 }
 ```
-
+### 创建并返回一个只保存了空字符串 "" 的 sds
+```c
 /*
  * 创建并返回一个只保存了空字符串 "" 的 sds
  *
@@ -118,7 +119,9 @@ sds sdsnewlen(const void *init, size_t initlen) {
 sds sdsempty(void) {
     return sdsnewlen("",0);
 }
-
+```
+### 根据给定字符串 init ，创建一个包含同样字符串的 sds
+```c
 /*
  * 根据给定字符串 init ，创建一个包含同样字符串的 sds
  *
@@ -138,7 +141,9 @@ sds sdsnew(const char *init) {
     size_t initlen = (init == NULL) ? 0 : strlen(init);
     return sdsnewlen(init, initlen);
 }
-
+```
+### 复制给定 sds 的副本
+```c
 /*
  * 复制给定 sds 的副本
  *
@@ -153,7 +158,9 @@ sds sdsnew(const char *init) {
 sds sdsdup(const sds s) {
     return sdsnewlen(s, sdslen(s));
 }
-
+```
+### 释放给定的 sds
+```c
 /*
  * 释放给定的 sds
  *
@@ -165,7 +172,9 @@ void sdsfree(sds s) {
     if (s == NULL) return;
     zfree(s-sizeof(struct sdshdr));
 }
-
+```
+### 更新sds 长度
+```c
 // 未使用函数，可能已废弃
 /* Set the sds string length to the length as obtained with strlen(), so
  * considering as content only up to the first null term character.
@@ -187,7 +196,9 @@ void sdsupdatelen(sds s) {
     sh->free += (sh->len-reallen);
     sh->len = reallen;
 }
-
+```
+### 重置 SDS 所保存的字符串为空字符串
+```c
 /*
  * 在不释放 SDS 的字符串空间的情况下，
  * 重置 SDS 所保存的字符串为空字符串。
@@ -211,7 +222,9 @@ void sdsclear(sds s) {
     // 将结束符放到最前面（相当于惰性地删除 buf 中的内容）
     sh->buf[0] = '\0';
 }
-
+```
+### 扩展sds 长度
+```c
 /* Enlarge the free space at the end of the sds string so that the caller
  * is sure that after calling this function can overwrite up to addlen
  * bytes after the end of the string, plus one more byte for nul term.
@@ -269,7 +282,9 @@ sds sdsMakeRoomFor(sds s, size_t addlen) {
     // 返回 sds
     return newsh->buf;
 }
-
+```
+### 回收 sds 中的空闲空间
+```c
 /*
  * 回收 sds 中的空闲空间，
  * 回收不会对 sds 中保存的字符串内容做任何修改。
@@ -300,7 +315,9 @@ sds sdsRemoveFreeSpace(sds s) {
 
     return sh->buf;
 }
-
+```
+### 返回给定 sds 分配的内存字节数
+```c
 /*
  * 返回给定 sds 分配的内存字节数
  *
@@ -319,7 +336,9 @@ size_t sdsAllocSize(sds s) {
 
     return sizeof(*sh)+sh->len+sh->free+1;
 }
-
+```
+### 根据 incr 参数，增加 sds 的长度，缩减空余空间
+```c
 /* Increment the sds length and decrements the left free space at the
  * end of the string according to 'incr'. Also set the null term
  * in the new end of the string.
@@ -374,7 +393,9 @@ void sdsIncrLen(sds s, int incr) {
     // 放置新的结尾符号
     s[sh->len] = '\0';
 }
-
+```
+### 将 sds 扩充至指定长度，未使用的空间以 0 字节填充。
+```c
 /* Grow the sds to have the specified length. Bytes that were not part of
  * the original length of the sds will be set to zero.
  *
@@ -417,7 +438,9 @@ sds sdsgrowzero(sds s, size_t len) {
     // 返回新的 sds
     return s;
 }
-
+```
+### 将长度为 len 的字符串 t 追加到 sds 的字符串末尾
+```c
 /*
  * 将长度为 len 的字符串 t 追加到 sds 的字符串末尾
  *
@@ -449,6 +472,7 @@ sds sdscatlen(sds s, const void *t, size_t len) {
     // 复制 t 中的内容到字符串后部
     // T = O(N)
     sh = (void*) (s-(sizeof(struct sdshdr)));
+    // s指向字符串头部地址，因此要从尾端开始
     memcpy(s+curlen, t, len);
 
     // 更新属性
@@ -461,7 +485,9 @@ sds sdscatlen(sds s, const void *t, size_t len) {
     // 返回新 sds
     return s;
 }
-
+```
+### 将给定字符串 t 追加到 sds 的末尾
+```c
 /*
  * 将给定字符串 t 追加到 sds 的末尾
  *
@@ -478,7 +504,9 @@ sds sdscatlen(sds s, const void *t, size_t len) {
 sds sdscat(sds s, const char *t) {
     return sdscatlen(s, t, strlen(t));
 }
-
+```
+### 将另一个 sds 追加到一个 sds 的末尾
+```c
 /*
  * 将另一个 sds 追加到一个 sds 的末尾
  *
@@ -495,7 +523,9 @@ sds sdscat(sds s, const char *t) {
 sds sdscatsds(sds s, const sds t) {
     return sdscatlen(s, t, sdslen(t));
 }
-
+```
+### 将字符串 t 的前 len 个字符复制到 sds s 当中。
+```c
 /*
  * 将字符串 t 的前 len 个字符复制到 sds s 当中，
  * 并在字符串的最后添加终结符。
@@ -540,7 +570,9 @@ sds sdscpylen(sds s, const char *t, size_t len) {
     // 返回新的 sds
     return s;
 }
-
+```
+### 将字符串复制到 sds 当中，覆盖原有的字符。
+```c
 /*
  * 将字符串复制到 sds 当中，
  * 覆盖原有的字符。
@@ -558,7 +590,7 @@ sds sdscpylen(sds s, const char *t, size_t len) {
 sds sdscpy(sds s, const char *t) {
     return sdscpylen(s, t, strlen(t));
 }
-
+```
 /* Helper for sdscatlonglong() doing the actual number -> string
  * conversion. 's' must point to a string with room for at least
  * SDS_LLSTR_SIZE bytes.
