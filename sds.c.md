@@ -591,6 +591,7 @@ sds sdscpy(sds s, const char *t) {
     return sdscpylen(s, t, strlen(t));
 }
 ```
+### long long类型转化为字符串的函数，这里写死了LLSTR长度为21个字符，主要是longlong的范围最大是20位，加上一个NULL，正好是21位
 /* Helper for sdscatlonglong() doing the actual number -> string
  * conversion. 's' must point to a string with room for at least
  * SDS_LLSTR_SIZE bytes.
@@ -657,7 +658,9 @@ int sdsull2str(char *s, unsigned long long v) {
     }
     return l;
 }
-
+```
+### 根据输入的 long long 值 value ，创建一个 SDS
+```c
 /* Create an sds string from a long long value. It is much faster than:
  *
  * sdscatprintf(sdsempty(),"%lld\n", value);
@@ -669,7 +672,9 @@ sds sdsfromlonglong(long long value) {
 
     return sdsnewlen(buf,len);
 }
-
+```
+### 打印任意数量个字符串，并将这些字符串追加到给定 sds 的末尾
+```c
 /*
  * 打印函数，被 sdscatprintf 所调用
  *
@@ -743,7 +748,7 @@ sds sdscatprintf(sds s, const char *fmt, ...) {
     va_end(ap);
     return t;
 }
-
+```
 /* This function is similar to sdscatprintf, but much faster as it does
  * not rely on sprintf() family functions implemented by the libc that
  * are often very slow. Moreover directly handling the sds string as
