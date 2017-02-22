@@ -592,6 +592,7 @@ sds sdscpy(sds s, const char *t) {
 }
 ```
 ### long long类型转化为字符串的函数，这里写死了LLSTR长度为21个字符，主要是longlong的范围最大是20位，加上一个NULL，正好是21位
+```c
 /* Helper for sdscatlonglong() doing the actual number -> string
  * conversion. 's' must point to a string with room for at least
  * SDS_LLSTR_SIZE bytes.
@@ -629,7 +630,8 @@ int sdsll2str(char *s, long long value) {
     }
     return l;
 }
-
+```
+```c
 /* Identical sdsll2str(), but for unsigned long long type. */
 int sdsull2str(char *s, unsigned long long v) {
     char *p, aux;
