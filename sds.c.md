@@ -630,8 +630,6 @@ int sdsll2str(char *s, long long value) {
     }
     return l;
 }
-```
-```c
 /* Identical sdsll2str(), but for unsigned long long type. */
 int sdsull2str(char *s, unsigned long long v) {
     char *p, aux;
@@ -1018,6 +1016,7 @@ void sdstoupper(sds s) {
 }
 ```
 ### 按字节比较对比两个 sds
+```c
 /*
  * 对比两个 sds ， strcmp 的 sds 版本
  *
