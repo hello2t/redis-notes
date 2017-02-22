@@ -717,7 +717,9 @@ sds sdscatvprintf(sds s, const char *fmt, va_list ap) {
     if (buf != staticbuf) zfree(buf);
     return t;
 }
-
+```
+### 打印任意数量个字符串，并将这些字符串追加到给定 sds 的末尾
+```c
 /*
  * 打印任意数量个字符串，并将这些字符串追加到给定 sds 的末尾
  *
@@ -749,6 +751,8 @@ sds sdscatprintf(sds s, const char *fmt, ...) {
     return t;
 }
 ```
+### sdscatprintf 功能类似，但是比它效率高
+```c
 /* This function is similar to sdscatprintf, but much faster as it does
  * not rely on sprintf() family functions implemented by the libc that
  * are often very slow. Moreover directly handling the sds string as
@@ -864,7 +868,9 @@ sds sdscatfmt(sds s, char const *fmt, ...) {
     s[i] = '\0';
     return s;
 }
-
+```
+### 对 sds 左右两端进行修剪，清除其中 cset 指定的所有字符
+```c
 /*
  * 对 sds 左右两端进行修剪，清除其中 cset 指定的所有字符
  *
@@ -917,7 +923,9 @@ sds sdstrim(sds s, const char *cset) {
     // 返回修剪后的 sds
     return s;
 }
-
+```
+### 按索引对截取 sds 字符串的其中一段
+```c
 /*
  * 按索引对截取 sds 字符串的其中一段
  * start 和 end 都是闭区间（包含在内）
@@ -980,7 +988,9 @@ void sdsrange(sds s, int start, int end) {
     sh->free = sh->free+(sh->len-newlen);
     sh->len = newlen;
 }
-
+```
+### 大小写函数
+```c
 /*
  * 将 sds 字符串中的所有字符转换为小写
  *
@@ -1004,7 +1014,8 @@ void sdstoupper(sds s) {
 
     for (j = 0; j < len; j++) s[j] = toupper(s[j]);
 }
-
+```
+### 按字节比较对比两个 sds
 /*
  * 对比两个 sds ， strcmp 的 sds 版本
  *
@@ -1031,13 +1042,16 @@ int sdscmp(const sds s1, const sds s2) {
     l1 = sdslen(s1);
     l2 = sdslen(s2);
     minlen = (l1 < l2) ? l1 : l2;
+    // 比较s1和s2的前count个字节
     cmp = memcmp(s1,s2,minlen);
 
     if (cmp == 0) return l1-l2;
 
     return cmp;
 }
-
+```
+### 使用分隔符 sep 对 s 进行分割，返回一个 sds 字符串的数组
+```c
 /* Split 's' with separator in 'sep'. An array
  * of sds strings is returned. *count will be set
  * by reference to the number of tokens returned.
@@ -1118,7 +1132,9 @@ cleanup:
         return NULL;
     }
 }
-
+```
+### 释放 tokens 数组中 count 个 sds
+```c
 /*
  * 释放 tokens 数组中 count 个 sds
  *
@@ -1131,7 +1147,9 @@ void sdsfreesplitres(sds *tokens, int count) {
         sdsfree(tokens[count]);
     zfree(tokens);
 }
-
+```
+### 将长度为 len 的字符串 p 以带引号（quoted）的格式追加到给定 sds 的末尾
+```c
 /*
  * 将长度为 len 的字符串 p 以带引号（quoted）的格式
  * 追加到给定 sds 的末尾
@@ -1171,7 +1189,9 @@ sds sdscatrepr(sds s, const char *p, size_t len) {
 
     return sdscatlen(s,"\"",1);
 }
-
+```
+### 如果 c 为十六进制符号的其中一个，返回正数
+```c
 /* Helper function for sdssplitargs() that returns non zero if 'c'
  * is a valid hex digit. */
 /*
@@ -1183,7 +1203,9 @@ int is_hex_digit(char c) {
     return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') ||
            (c >= 'A' && c <= 'F');
 }
-
+```
+### 将十六进制符号转换为 10 进制
+```c
 /* Helper function for sdssplitargs() that converts a hex digit into an
  * integer from 0 to 15 */
 /*
@@ -1212,7 +1234,9 @@ int hex_digit_to_int(char c) {
     default: return 0;
     }
 }
-
+```
+### 将一行文本分割成多个参数
+```c
 /* Split a line into arguments, where every argument can be in the
  * following programming-language REPL-alike form:
  *
@@ -1371,7 +1395,9 @@ err:
     *argc = 0;
     return NULL;
 }
-
+```
+### 将字符串 s 中，所有在 from 中出现的字符，替换成 to 中的字符
+```c
 /* Modify the string substituting all the occurrences of the set of
  * characters specified in the 'from' string to the corresponding character
  * in the 'to' array.
@@ -1408,7 +1434,9 @@ sds sdsmapchars(sds s, const char *from, const char *to, size_t setlen) {
     }
     return s;
 }
-
+```
+### 将字符用sep 连接起来
+```c
 /* Join an array of C strings using the specified separator (also a C string).
  * Returns the result as an sds string. */
 sds sdsjoin(char **argv, int argc, char *sep) {
@@ -1421,8 +1449,10 @@ sds sdsjoin(char **argv, int argc, char *sep) {
     }
     return join;
 }
-
-//#ifdef SDS_TEST_MAIN
+```
+### 单元测试
+```c
+#ifdef SDS_TEST_MAIN
 #include <stdio.h>
 #include "testhelp.h"
 #include "limits.h"
@@ -1560,4 +1590,5 @@ int main(void) {
     test_report()
     return 0;
 }
-//#endif
+#endif
+```
