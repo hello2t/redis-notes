@@ -32,9 +32,9 @@
 
 #ifndef __ADLIST_H__
 #define __ADLIST_H__
-```
+```c
 ### 双端链表节点
-```
+```c
 /* Node, List, and Iterator are the only data structures used currently. */
 
 /*
@@ -54,7 +54,7 @@ typedef struct listNode {
 } listNode;
 ```
 ### 双端链表迭代器
-```
+```c
 /*
  * 双端链表迭代器
  */
@@ -69,7 +69,7 @@ typedef struct listIter {
 } listIter;
 ```
 ### 双端链表结构
-```
+```c
 /*
  * 双端链表结构
  */
@@ -97,6 +97,7 @@ typedef struct list {
 ```
 
 ### 定义LIST对应的函数
+```c
 /* Functions implemented as macros */
 // 返回给定链表所包含的节点数量
 // T = O(1)
@@ -153,7 +154,6 @@ listNode *listIndex(list *list, long index);
 void listRewind(list *list, listIter *li);
 void listRewindTail(list *list, listIter *li);
 void listRotate(list *list);
-
 /* Directions for iterators
  *
  * 迭代器进行迭代的方向
@@ -164,3 +164,5 @@ void listRotate(list *list);
 #define AL_START_TAIL 1
 
 #endif /* __ADLIST_H__ */
+
+```
