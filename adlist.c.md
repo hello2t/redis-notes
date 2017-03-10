@@ -1,3 +1,5 @@
+### 头文件定义开始，防止重复引用
+```c
 /* adlist.c - A generic doubly linked list implementation
  *
  * Copyright (c) 2006-2010, Salvatore Sanfilippo <antirez at gmail dot com>
@@ -28,11 +30,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #include <stdlib.h>
 #include "adlist.h"
 #include "zmalloc.h"
-
+```
+### 创建一个新的链表
+```c
 /* Create a new list. The created list can be freed with
  * AlFreeList(), but private value of every node need to be freed
  * by the user before to call AlFreeList().
@@ -62,7 +65,9 @@ list *listCreate(void)
 
     return list;
 }
-
+```
+### 释放整个链表，以及链表中所有节点
+```c
 /* Free the whole list.
  *
  * This function can't fail. */
@@ -95,7 +100,9 @@ void listRelease(list *list)
     // 释放链表结构
     zfree(list);
 }
-
+```
+### 新增节点到链表表头
+```c
 /* Add a new node to the list, to head, contaning the specified 'value'
  * pointer as value.
  *
@@ -139,7 +146,9 @@ list *listAddNodeHead(list *list, void *value)
 
     return list;
 }
-
+```
+### 添加节点到链表表尾
+```c
 /* Add a new node to the list, to tail, containing the specified 'value'
  * pointer as value.
  *
@@ -172,6 +181,7 @@ list *listAddNodeTail(list *list, void *value)
         node->prev = node->next = NULL;
     // 目标链表非空
     } else {
+        // 新node 的上一个为当前list 的最后一个
         node->prev = list->tail;
         node->next = NULL;
         list->tail->next = node;
@@ -183,7 +193,8 @@ list *listAddNodeTail(list *list, void *value)
 
     return list;
 }
-
+### 添加节点到指定节点后面或者前面
+```c
 /*
  * 创建一个包含值 value 的新节点，并将它插入到 old_node 的之前或之后
  *
@@ -234,7 +245,9 @@ list *listInsertNode(list *list, listNode *old_node, void *value, int after) {
 
     return list;
 }
-
+```
+### 删除节点
+```c
 /* Remove the specified node from the specified list.
  * It's up to the caller to free the private value of the node.
  *
@@ -269,6 +282,7 @@ void listDelNode(list *list, listNode *node)
     // 链表数减一
     list->len--;
 }
+```
 
 /* Returns a list iterator 'iter'. After the initialization every
  * call to listNext() will return the next element of the list.
