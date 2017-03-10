@@ -98,6 +98,7 @@ typedef struct list {
 
 ### 定义LIST对应的函数
 ```c
+
 /* Functions implemented as macros */
 // 返回给定链表所包含的节点数量
 // T = O(1)
