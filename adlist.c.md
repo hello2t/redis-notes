@@ -283,7 +283,8 @@ void listDelNode(list *list, listNode *node)
     list->len--;
 }
 ```
-
+### 给定链表的一个迭代器，direction指定迭代的方向
+```c
 /* Returns a list iterator 'iter'. After the initialization every
  * call to listNext() will return the next element of the list.
  *
@@ -315,7 +316,9 @@ listIter *listGetIterator(list *list, int direction)
 
     return iter;
 }
-
+```
+### 释放list对应的迭代器
+```c
 /* Release the iterator memory */
 /*
  * 释放迭代器
@@ -325,7 +328,9 @@ listIter *listGetIterator(list *list, int direction)
 void listReleaseIterator(listIter *iter) {
     zfree(iter);
 }
-
+```
+### 将迭代器重置到表头
+```c
 /* Create an iterator in the list private iterator structure */
 /*
  * 将迭代器的方向设置为 AL_START_HEAD ，
@@ -337,7 +342,9 @@ void listRewind(list *list, listIter *li) {
     li->next = list->head;
     li->direction = AL_START_HEAD;
 }
-
+```
+### 将迭代器重置到表尾
+```c
 /*
  * 将迭代器的方向设置为 AL_START_TAIL ，
  * 并将迭代指针重新指向表尾节点。
@@ -348,7 +355,9 @@ void listRewindTail(list *list, listIter *li) {
     li->next = list->tail;
     li->direction = AL_START_TAIL;
 }
-
+```
+### 返回迭代器当前所指向的节点
+```c
 /* Return the next element of an iterator.
  * It's valid to remove the currently returned element using
  * listDelNode(), but not to remove other elements.
@@ -393,7 +402,9 @@ listNode *listNext(listIter *iter)
 
     return current;
 }
-
+```
+### 复制整个链表
+```c
 /* Duplicate the whole list. On out of memory NULL is returned.
  * On success a copy of the original list is returned.
  *
@@ -460,7 +471,9 @@ list *listDup(list *orig)
     // 返回副本
     return copy;
 }
-
+```
+### 查找链表 list 中值和 key 匹配的节点。
+```c
 /* Search the list for a node matching a given key.
  * The match is performed using the 'match' method
  * set with listSetMatchMethod(). If no 'match' method
@@ -512,7 +525,8 @@ listNode *listSearchKey(list *list, void *key)
     // 未找到
     return NULL;
 }
-
+### 返回链表在给定索引上的值
+```c
 /* Return the element at the specified zero-based index
  * where 0 is the head, 1 is the element next to head
  * and so on. Negative integers are used in order to count
@@ -543,7 +557,9 @@ listNode *listIndex(list *list, long index) {
 
     return n;
 }
-
+```
+### 把链表尾节点移动到表头
+```c
 /* Rotate the list removing the tail node and inserting it to the head. */
 /*
  * 取出链表的表尾节点，并将它移动到表头，成为新的表头节点。
@@ -567,3 +583,4 @@ void listRotate(list *list) {
     tail->next = list->head;
     list->head = tail;
 }
+```
