@@ -202,6 +202,9 @@ typedef struct dictIterator {
     long long fingerprint; /* unsafe iterator fingerprint for misuse detection */
 } dictIterator;
 ```
+### 字典数据结构图
+![](http://img.blog.csdn.net/20160330183625367)
+
 ### 定义函数别名
 ```c
 typedef void (dictScanFunction)(void *privdata, const dictEntry *de);
