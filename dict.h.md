@@ -209,7 +209,7 @@ typedef struct dictIterator {
 ```c
 typedef void (dictScanFunction)(void *privdata, const dictEntry *de);
 ```
-### 定义字段相关宏
+### 定义字典相关宏
 ```c
 /* This is the initial size of every hash table */
 /*

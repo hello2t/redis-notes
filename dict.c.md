@@ -1,3 +1,5 @@
+### 文件说明
+```c
 /* Hash Tables Implementation.
  *
  * This file implements in memory hash tables with insert/del/replace/find/
@@ -32,7 +34,10 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
+```
+### 引入头文件
+```c
+// 用于mac下的兼容性处理
 #include "fmacros.h"
 
 #include <stdio.h>
@@ -46,7 +51,9 @@
 #include "dict.h"
 #include "zmalloc.h"
 #include "redisassert.h"
-
+```
+### 私用静态方法以及变量声明
+```c
 /* Using dictEnableResize() / dictDisableResize() we make possible to
  * enable/disable resizing of the hash table as needed. This is very important
  * for Redis, as we use copy-on-write and don't want to move too much memory
@@ -76,9 +83,14 @@ static int _dictExpandIfNeeded(dict *ht);
 static unsigned long _dictNextPower(unsigned long size);
 static int _dictKeyIndex(dict *ht, const void *key);
 static int _dictInit(dict *ht, dictType *type, void *privDataPtr);
+```
 
+### 三个不同的哈希函数
+* 使用Thomas Wang’s 32 bit Mix哈希算法，对一个整型进行哈希，该方法在dictIntHashFunction函数中实现。
+* 使用MurmurHash2哈希算法对字符串进行哈希，该方法在dictGenHashFunction函数中实现。
+* 在dictGenCaseHashFunction函数中提供了一种比较简单的哈希算法，对字符串进行哈希
 /* -------------------------- hash functions -------------------------------- */
-
+```c
 /* Thomas Wang's 32 bit Mix Function */
 unsigned int dictIntHashFunction(unsigned int key)
 {
@@ -169,9 +181,11 @@ unsigned int dictGenCaseHashFunction(const unsigned char *buf, int len) {
         hash = ((hash << 5) + hash) + (tolower(*buf++)); /* hash * 33 + c */
     return hash;
 }
+```
 
 /* ----------------------------- API implementation ------------------------- */
-
+### 重置指定的哈希表
+```c
 /* Reset a hash table already initialized with ht_init().
  * NOTE: This function should only be called by ht_destroy(). */
 /*
@@ -188,7 +202,9 @@ static void _dictReset(dictht *ht)
     ht->sizemask = 0;
     ht->used = 0;
 }
-
+```
+### 创建新的字典
+```c
 /* Create a new hash table */
 /*
  * 创建一个新的字典
@@ -204,7 +220,7 @@ dict *dictCreate(dictType *type,
 
     return d;
 }
-
+```
 /* Initialize the hash table */
 /*
  * 初始化哈希表
