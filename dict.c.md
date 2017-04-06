@@ -220,7 +220,6 @@ dict *dictCreate(dictType *type,
 
     return d;
 }
-```
 /* Initialize the hash table */
 /*
  * 初始化哈希表
@@ -249,7 +248,8 @@ int _dictInit(dict *d, dictType *type,
 
     return DICT_OK;
 }
-
+```
+### 缩小给定字典
 /* Resize the table to the minimal size that contains all the elements,
  * but with the invariant of a USED/BUCKETS ratio near to <= 1 */
 /*
@@ -278,7 +278,10 @@ int dictResize(dict *d)
     // T = O(N)
     return dictExpand(d, minimal);
 }
-
+```
+```
+### 创建一个新的哈希表
+```
 /* Expand or create the hash table */
 /*
  * 创建一个新的哈希表，并根据字典的情况，选择以下其中一个动作来进行：
@@ -349,7 +352,9 @@ int dictExpand(dict *d, unsigned long size)
 
     */
 }
-
+```
+### 执行 N 步渐进式 rehash
+```
 /* Performs N steps of incremental rehashing. Returns 1 if there are still
  * keys to move from the old to the new hash table, otherwise 0 is returned.
  *
@@ -435,7 +440,9 @@ int dictRehash(dict *d, int n) {
 
     return 1;
 }
-
+```
+### 返回以毫秒为单位的 UNIX 时间戳
+```
 /*
  * 返回以毫秒为单位的 UNIX 时间戳
  *
@@ -447,7 +454,9 @@ long long timeInMilliseconds(void) {
     gettimeofday(&tv,NULL);
     return (((long long)tv.tv_sec)*1000)+(tv.tv_usec/1000);
 }
-
+```
+### 单位事件内对字典进行 rehash
+```
 /* Rehash for an amount of time between ms milliseconds and ms+1 milliseconds */
 /*
  * 在给定毫秒数内，以 100 步为单位，对字典进行 rehash 。
@@ -467,7 +476,9 @@ int dictRehashMilliseconds(dict *d, int ms) {
 
     return rehashes;
 }
-
+```
+### 单步 rehash
+```
 /* This function performs just a step of rehashing, and only if there are
  * no safe iterators bound to our hash table. When we have iterators in the
  * middle of a rehashing we can't mess with the two hash tables otherwise
@@ -490,7 +501,9 @@ int dictRehashMilliseconds(dict *d, int ms) {
 static void _dictRehashStep(dict *d) {
     if (d->iterators == 0) dictRehash(d,1);
 }
-
+```
+### 添加键值到字典中
+```
 /* Add an element to the target hash table */
 /*
  * 尝试将给定键值对添加到字典中
@@ -517,7 +530,9 @@ int dictAdd(dict *d, void *key, void *val)
     // 添加成功
     return DICT_OK;
 }
-
+```
+### 将键插入到字典中
+```
 /* Low level add. This function adds the entry but instead of setting
  * a value returns the dictEntry structure to the user, that will make
  * sure to fill the value field as he wishes.
@@ -581,7 +596,9 @@ dictEntry *dictAddRaw(dict *d, void *key)
 
     return entry;
 }
-
+```
+### 给定的键值对添加到字典中，与dictAdd的区别在在于它会替换已存在的key
+```
 /* Add an element, discarding the old if the key already exists.
  *
  * 将给定的键值对添加到字典中，如果键已经存在，那么删除旧有的键值对。
@@ -627,7 +644,9 @@ int dictReplace(dict *d, void *key, void *val)
 
     return 0;
 }
-
+```
+### dictAddRaw的简化版，区别在于会先寻找是否存在对应的key，有则直接返回
+```
 /* dictReplaceRaw() is simply a version of dictAddRaw() that always
  * returns the hash entry of the specified key, even if the key already
  * exists and can't be added (in that case the entry of the already
@@ -655,6 +674,7 @@ dictEntry *dictReplaceRaw(dict *d, void *key) {
     // T = O(N)
     return entry ? entry : dictAddRaw(d,key);
 }
+```
 
 /* Search and remove an element */
 /*
