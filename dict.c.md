@@ -89,8 +89,8 @@ static int _dictInit(dict *ht, dictType *type, void *privDataPtr);
 * 使用Thomas Wang’s 32 bit Mix哈希算法，对一个整型进行哈希，该方法在dictIntHashFunction函数中实现。
 * 使用MurmurHash2哈希算法对字符串进行哈希，该方法在dictGenHashFunction函数中实现。
 * 在dictGenCaseHashFunction函数中提供了一种比较简单的哈希算法，对字符串进行哈希
-/* -------------------------- hash functions -------------------------------- */
 ```c
+/* -------------------------- hash functions -------------------------------- */
 /* Thomas Wang's 32 bit Mix Function */
 unsigned int dictIntHashFunction(unsigned int key)
 {
@@ -183,9 +183,9 @@ unsigned int dictGenCaseHashFunction(const unsigned char *buf, int len) {
 }
 ```
 
-/* ----------------------------- API implementation ------------------------- */
 ### 重置指定的哈希表
 ```c
+/* ----------------------------- API implementation ------------------------- */
 /* Reset a hash table already initialized with ht_init().
  * NOTE: This function should only be called by ht_destroy(). */
 /*
