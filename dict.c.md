@@ -250,6 +250,7 @@ int _dictInit(dict *d, dictType *type,
 }
 ```
 ### 缩小给定字典
+```
 /* Resize the table to the minimal size that contains all the elements,
  * but with the invariant of a USED/BUCKETS ratio near to <= 1 */
 /*
@@ -278,7 +279,6 @@ int dictResize(dict *d)
     // T = O(N)
     return dictExpand(d, minimal);
 }
-```
 ```
 ### 创建一个新的哈希表
 ```
@@ -675,7 +675,11 @@ dictEntry *dictReplaceRaw(dict *d, void *key) {
     return entry ? entry : dictAddRaw(d,key);
 }
 ```
-
+### 删除所指定key的节点
+流程：
+1、单步rehash
+2、遍历table[0]和table[1]比对key，命中则删除
+```
 /* Search and remove an element */
 /*
  * 查找并删除包含给定键的节点
@@ -753,7 +757,9 @@ static int dictGenericDelete(dict *d, const void *key, int nofree)
     // 没找到
     return DICT_ERR; /* not found */
 }
-
+```
+### 调用dictGenericDelete，并调用键值的释放函数来删除键值
+```
 /*
  * 从字典中删除包含给定键的节点
  *
@@ -765,7 +771,10 @@ static int dictGenericDelete(dict *d, const void *key, int nofree)
 int dictDelete(dict *ht, const void *key) {
     return dictGenericDelete(ht,key,0);
 }
-
+```
+### 调用dictGenericDelete，但不删除键值
+全局搜索了一下，这并没有被调用过。。。
+```
 /*
  * 从字典中删除包含给定键的节点
  *
@@ -777,6 +786,7 @@ int dictDelete(dict *ht, const void *key) {
 int dictDeleteNoFree(dict *ht, const void *key) {
     return dictGenericDelete(ht,key,1);
 }
+```
 
 /* Destroy an entire dictionary */
 /*
