@@ -1454,7 +1454,7 @@ unsigned long dictScan(dict *d,
     return v;
 }
 ```
-### 扩展字典
+### 私有方法
 ```
 /* ------------------------- private functions ------------------------------ */
 
