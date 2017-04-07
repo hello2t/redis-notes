@@ -788,6 +788,7 @@ int dictDeleteNoFree(dict *ht, const void *key) {
 }
 ```
 ### 清理哈希表
+```
 /* Destroy an entire dictionary */
 /*
  * 删除哈希表上的所有节点，并重置哈希表的各项属性
