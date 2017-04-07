@@ -787,7 +787,7 @@ int dictDeleteNoFree(dict *ht, const void *key) {
     return dictGenericDelete(ht,key,1);
 }
 ```
-
+### 清理哈希表
 /* Destroy an entire dictionary */
 /*
  * 删除哈希表上的所有节点，并重置哈希表的各项属性
@@ -837,7 +837,9 @@ int _dictClear(dict *d, dictht *ht, void(callback)(void *)) {
 
     return DICT_OK; /* never fails */
 }
-
+```
+### 删除整个字典
+```
 /* Clear & Release the hash table */
 /*
  * 删除并释放整个字典
@@ -852,7 +854,9 @@ void dictRelease(dict *d)
     // 释放节点结构
     zfree(d);
 }
-
+```
+### 查找字典中包含键 key 的节点
+```
 /*
  * 返回字典中包含键 key 的节点
  *
@@ -860,6 +864,7 @@ void dictRelease(dict *d)
  *
  * T = O(1)
  */
+// 将函数传入参数声明为const，以指明使用这种参数仅仅是为了效率的原因，而不是想让调用函数能够修改对象的值。同理，将指针参数声明为const，函数将不修改由这个参数所指的对象。
 dictEntry *dictFind(dict *d, const void *key)
 {
     dictEntry *he;
@@ -900,7 +905,9 @@ dictEntry *dictFind(dict *d, const void *key)
     // 进行到这里时，说明两个哈希表都没找到
     return NULL;
 }
-
+```
+### 获取包含给定键的节点的值
+```
 /*
  * 获取包含给定键的节点的值
  *
@@ -917,7 +924,9 @@ void *dictFetchValue(dict *d, const void *key) {
 
     return he ? dictGetVal(he) : NULL;
 }
-
+```
+### 迭代器指纹
+```
 /* A fingerprint is a 64 bit number that represents the state of the dictionary
  * at a given time, it's just a few dict properties xored together.
  * When an unsafe iterator is initialized, we get the dict fingerprint, and check
@@ -955,7 +964,9 @@ long long dictFingerprint(dict *d) {
     }
     return hash;
 }
-
+```
+###  创建迭代器
+```
 /*
  * 创建并返回给定字典的不安全迭代器
  *
@@ -974,7 +985,6 @@ dictIterator *dictGetIterator(dict *d)
 
     return iter;
 }
-
 /*
  * 创建并返回给定节点的安全迭代器
  *
@@ -988,7 +998,9 @@ dictIterator *dictGetSafeIterator(dict *d) {
 
     return i;
 }
-
+```
+### 返回迭代器指向的当前节点
+```
 /*
  * 返回迭代器指向的当前节点
  *
@@ -1057,7 +1069,9 @@ dictEntry *dictNext(dictIterator *iter)
     // 迭代完毕
     return NULL;
 }
-
+```
+### 释放迭代器
+```
 /*
  * 释放给定字典迭代器
  *
@@ -1076,7 +1090,9 @@ void dictReleaseIterator(dictIterator *iter)
     }
     zfree(iter);
 }
-
+```
+### 随机返回字典中任意一个节点
+```
 /* Return a random entry from the hash table. Useful to
  * implement randomized algorithms */
 /*
@@ -1140,7 +1156,10 @@ dictEntry *dictGetRandomKey(dict *d)
     // 返回随机节点
     return he;
 }
-
+```
+### 随机获取字典中指定 count 个数的节点
+des 指向节点
+```
 /* This is a version of dictGetRandomKey() that is modified in order to
  * return multiple entries by jumping at a random place of the hash table
  * and scanning linearly for entries.
@@ -1192,7 +1211,9 @@ int dictGetRandomKeys(dict *d, dictEntry **des, int count) {
     }
     return stored; /* Never reached. */
 }
-
+```
+### 迭代字典
+```
 /* Function to reverse bits. Algorithm from:
  * http://graphics.stanford.edu/~seander/bithacks.html#ReverseParallel */
 static unsigned long rev(unsigned long v) {
@@ -1431,7 +1452,9 @@ unsigned long dictScan(dict *d,
 
     return v;
 }
-
+```
+### 扩展字典
+```
 /* ------------------------- private functions ------------------------------ */
 
 /* Expand the hash table if needed */
@@ -1470,7 +1493,6 @@ static int _dictExpandIfNeeded(dict *d)
 
     return DICT_OK;
 }
-
 /* Our hash table capability is a power of two */
 /*
  * 计算第一个大于等于 size 的 2 的 N 次方，用作哈希表的值
@@ -1577,6 +1599,9 @@ void dictDisableResize(void) {
     dict_can_resize = 0;
 }
 
+```
+### 测试代码
+```
 #if 0
 
 /* The following is code that we don't use for Redis currently, but that is part
@@ -1701,3 +1726,4 @@ dictType dictTypeHeapStringCopyKeyValue = {
     _dictStringDestructor,         /* val destructor */
 };
 #endif
+```
